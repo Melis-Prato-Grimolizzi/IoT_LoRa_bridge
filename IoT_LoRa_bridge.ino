@@ -1,7 +1,4 @@
-union{
-  float f;
-  byte b[4];
-} _f;
+# define MINPACKETSIZE 3
 
 struct Slot{
   uint8_t zone_; // parking zone
@@ -27,13 +24,13 @@ struct Slot{
 };
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(38400);
 
 }
 
 void loop() {
-  if(Serial.available() > 0){
-    delay(2000);
+  if(Serial.available() > MINPACKETSIZE){
+    delay(10);
     if(byte(Serial.read()) == 0xFF){
       int len = Serial.read();
       if(Serial.available() < len){
@@ -41,18 +38,24 @@ void loop() {
       }
       int zone = Serial.read();
       int id = Serial.read();
-      //Serial.write(zone);
-      //Serial.write(id);
-      float lat = Serial.parseFloat();
-      _f.f = lat;
-      for (int i = 0; i < 4; i++) {
-        Serial.write(_f.b[i]); // Invia i 4 byte del float
+      Serial.write(zone);
+      Serial.write(id);
+      
+      byte lat[4];
+      Serial.readBytes(lat, 4);
+      for(int i = 0; i < 4; i++){
+        Serial.write(lat[i]);
       }
-      float lon = Serial.parseFloat();
-      _f.f = lon;
-      for (int i = 0; i < 4; i++) {
-        Serial.write(_f.b[i]); // Invia i 4 byte del float
+
+      byte lon[4];
+      Serial.readBytes(lon, 4);
+      for(int i = 0; i < 4; i++){
+        Serial.write(lon[i]);
       }
+
+      delay(10);
+      int code = Serial.read();
+      Serial.write(code);
     }
   }
 }
