@@ -1,4 +1,5 @@
 # define MINPACKETSIZE 3
+# define TEST 1
 
 struct Slot{
   uint8_t zone_; // parking zone
