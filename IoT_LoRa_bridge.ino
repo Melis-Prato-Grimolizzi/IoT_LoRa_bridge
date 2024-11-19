@@ -1,37 +1,41 @@
-/*
-# define MINPACKETSIZE 3
-# define TEST 1
+#include "LoRa_E220.h"
 
-struct Slot{
-  uint8_t zone_; // parking zone
-  uint8_t id_; // parking id
-  float lat_; // parking latitude
-  float lon_; // parking longitude
+#define RXD 2
+#define TXD 3 
 
-  
-  * @brief Constructor for a slot.
-  *
-  * @param zone The zone that the slot belongs to.
-  * @param id The unique id wrt zone.
-  * @param lat Latitude of parking slot.
-  * @param lon Longitude of parking slot.
-  * 
-  *
-  
-  Slot(uint8_t zone, uint8_t id, double lat, double lon) : 
-    zone_(zone), id_(id), lat_(lat), lon_(lon) {}
 
-  // empty constructor
-  Slot() : zone_(0), id_(0), lat_(0), lon_(0) {}
-};
+LoRa_E220 lora(RXD, TXD);
 
 void setup() {
-  Serial.begin(38400);
+
+  Serial.begin(9600);
+  while(!Serial){}
+  //delay(300); // nell'ultima versione del codice funzionante questo era presente, TODO: testare se funziona senza
+  Serial.println("Starting LoRa...");
+  lora.begin();
+
+  pinMode(RXD, INPUT);
+  pinMode(TXD, OUTPUT);
+
+  Serial.println("LoRa succesfully started!");
+
+  Serial.println("Ciao! Sono il ricevitore");
 
 }
 
 void loop() {
-  if(Serial.available() > MINPACKETSIZE){
+
+  delay(50);
+  if(lora.available() > 1){
+    //Serial.println("Ricevuto");
+    ResponseContainer rc = lora.receiveMessage();
+    Serial.println(rc.data);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  // Questo codice è un test che ci fa vedere come scrivere un float sulla linea seriale
+  /*
+  if(Serial.available() > 0){
     delay(10);
     if(byte(Serial.read()) == 0xFF){
       int len = Serial.read();
@@ -60,9 +64,15 @@ void loop() {
       Serial.write(code);
     }
   }
+  */
+  ///////////////////////////////////////////////////////////////////////////////////////////
 }
-*/
 
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// Questo è il codice per la get configuration del modulo E220
+
+/*
 #include "Arduino.h"
 #include "LoRa_E220.h"
 
@@ -184,3 +194,6 @@ void printModuleInformation(struct ModuleInformation moduleInformation) {
 	Serial.print(F("Features : "));  Serial.println(moduleInformation.features, HEX);
 	Serial.println("----------------------------------------");
 }
+*/
+
+///////////////////////////////////////////////////////////////////////////////////////////
