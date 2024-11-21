@@ -10,12 +10,13 @@ void setup() {
 
   Serial.begin(9600);
   while(!Serial){}
-  //delay(300); // nell'ultima versione del codice funzionante questo era presente, TODO: testare se funziona senza
+  delay(300); // nell'ultima versione del codice funzionante questo era presente, TODO: testare se funziona senza
   Serial.println("Starting LoRa...");
-  lora.begin();
 
   pinMode(RXD, INPUT);
   pinMode(TXD, OUTPUT);
+
+  lora.begin();
 
   Serial.println("LoRa succesfully started!");
 
@@ -29,7 +30,7 @@ void loop() {
   if(lora.available() > 1){
     //Serial.println("Ricevuto");
     ResponseContainer rc = lora.receiveMessage();
-    Serial.println(rc.data);
+    Serial.println((rc.data.c_str())[0]);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
