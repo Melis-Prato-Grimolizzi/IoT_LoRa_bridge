@@ -1,36 +1,84 @@
 #include "LoRa_E220.h"
 
-#define RXD 2
-#define TXD 3 
+uint64_t readingMillis = 0;
+const uint64_t deltaReading = 50;
 
+const int startingDeltaTime = 1000; 
+
+const uint8_t RXD = 2;
+const uint8_t TXD = 3;
+
+const uint8_t updateMessageSize = 3;
 
 LoRa_E220 lora(RXD, TXD);
+
+struct packet{
+  byte header;
+  int id;
+  byte footer;
+};
+
+bool timer(const uint64_t start, const uint64_t delta){
+  if((millis() - start) < delta){
+    return false;
+  }
+  return true;
+}
 
 void setup() {
 
   Serial.begin(9600);
   while(!Serial){}
-  delay(300); // nell'ultima versione del codice funzionante questo era presente, TODO: testare se funziona senza
-  Serial.println("Starting LoRa...");
 
+  const uint64_t startingTime = millis();
+  while(!timer(startingTime, startingDeltaTime)){}
+  //delay(300); // nell'ultima versione del codice funzionante questo era presente, TODO: testare se funziona senza
+  //Serial.println("Starting LoRa...");
+
+  // LoRa Pin setup
   pinMode(RXD, INPUT);
   pinMode(TXD, OUTPUT);
 
   lora.begin();
 
-  Serial.println("LoRa succesfully started!");
-
-  Serial.println("Ciao! Sono il ricevitore");
+  //Serial.println("LoRa succesfully started!");
+  //Serial.println("Ciao! Sono il ricevitore");
+  readingMillis = millis();
 
 }
 
 void loop() {
 
   delay(50);
-  if(lora.available() > 1){
+  int test = 16;
+  Serial.write(test);
+  //Serial.write(test / 256);
+  //Serial.write(test % 256);
+  return;
+  
+  if((millis() - readingMillis) > deltaReading){
+    if(lora.available() > 1){
     //Serial.println("Ricevuto");
-    ResponseContainer rc = lora.receiveMessage();
-    Serial.println((rc.data.c_str())[0]);
+
+    // questo non va bene, è una soluzione arrangiata
+    // dobbiamo usare ResponseStructContainer
+
+    ////////////////////////////////////////////////
+    //ResponseContainer rc = lora.receiveMessage();
+    //Serial.println((rc.data.c_str())[0]);
+    ////////////////////////////////////////////////
+
+    ResponseStructContainer rsc = lora.receiveMessage(updateMessageSize);
+
+    if (rsc.status.getResponseDescription() == "Success"){
+      struct packet message = *(packet*) rsc.data;
+      if (message.header == 0xFF && message.footer == 0xFE){
+        Serial.write(message.id);
+      }
+    }
+
+
+    }
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
