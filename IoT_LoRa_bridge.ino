@@ -14,7 +14,7 @@ LoRa_E220 lora(RXD, TXD);
 
 struct packet{
   byte header;
-  int id;
+  uint8_t id;
   byte footer;
 };
 
@@ -48,36 +48,22 @@ void setup() {
 }
 
 void loop() {
-
-  delay(50);
-  int test = 16;
-  Serial.write(test);
   //Serial.write(test / 256);
   //Serial.write(test % 256);
-  return;
   
   if((millis() - readingMillis) > deltaReading){
-    if(lora.available() > 1){
-    //Serial.println("Ricevuto");
+    if(lora.available() > 0){
+      //Serial.println("Ricevuto");
 
-    // questo non va bene, è una soluzione arrangiata
-    // dobbiamo usare ResponseStructContainer
-
-    ////////////////////////////////////////////////
-    //ResponseContainer rc = lora.receiveMessage();
-    //Serial.println((rc.data.c_str())[0]);
-    ////////////////////////////////////////////////
-
-    ResponseStructContainer rsc = lora.receiveMessage(updateMessageSize);
-
-    if (rsc.status.getResponseDescription() == "Success"){
-      struct packet message = *(packet*) rsc.data;
-      if (message.header == 0xFF && message.footer == 0xFE){
-        Serial.write(message.id);
+      ResponseStructContainer rsc = lora.receiveMessage(sizeof(packet)); 
+      
+      if (rsc.status.getResponseDescription() == "Success"){
+        struct packet message = *(packet*) rsc.data;
+        if (message.header == 0xFF && message.footer == 0xFE){
+          Serial.write(message.id);
+        }
       }
-    }
-
-
+      
     }
   }
 
