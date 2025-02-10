@@ -52,6 +52,7 @@ void loop() {
   //Serial.write(test % 256);
   
   if((millis() - readingMillis) > deltaReading){
+    readingMillis = millis();
     if(lora.available() > 0){
       //Serial.println("Ricevuto");
 
