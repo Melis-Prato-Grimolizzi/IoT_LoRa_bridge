@@ -33,23 +33,23 @@ void setup() {
   const uint64_t startingTime = millis();
   while(!timer(startingTime, startingDeltaTime)){}
   delay(300); // nell'ultima versione del codice funzionante questo era presente, TODO: testare se funziona senza
-  Serial.println("Starting LoRa...");
+  //Serial.println("Starting LoRa...");
 
   // LoRa Pin setup
   // pinMode(RXD, INPUT);
   // pinMode(TXD, OUTPUT);
-
   lora.begin();
-  Serial.println("Begin effettuato");
+
+  //Serial.println("Begin effettuato");
 	ResponseStructContainer c;
 	c = lora.getConfiguration();
-  Serial.println("Get configuration effettuato");
+  //Serial.println("Get configuration effettuato");
 	Configuration configuration = *(Configuration*) c.data;
-	printParameters(configuration);
+	//printParameters(configuration);
 
 
-  Serial.println("LoRa succesfully started!");
-  Serial.println("Ciao! Sono il ricevitore");
+  // Serial.println("LoRa succesfully started!");
+  // Serial.println("Ciao! Sono il ricevitore");
   readingMillis = millis();
 
 }
@@ -61,17 +61,17 @@ void loop() {
   if((millis() - readingMillis) > deltaReading){
     readingMillis = millis();
     if(lora.available() > 0){
-      Serial.println("Ricevuto");
+      //Serial.println("Ricevuto");
 
       ResponseStructContainer rsc = lora.receiveMessage(sizeof(packet)); 
       
       if (rsc.status.getResponseDescription() == "Success"){
         struct packet message = *(packet*) rsc.data;
         if (message.header == 0xFF && message.footer == 0xFE){
-          char str[30];
-          sprintf(str, "Ho ricevuto l'id %d", message.id);
-          Serial.println(str);
-          //Serial.write(message.id); // NOTA BENE: il write serve quando è up anche il bridge per mandare il dato
+          // char str[30];
+          // sprintf(str, "Ho ricevuto l'id %d", message.id);
+          // Serial.println(str);
+          Serial.write(message.id); // NOTA BENE: il write serve quando è up anche il bridge per mandare il dato
           
         }
       }
@@ -207,6 +207,7 @@ void loop() {
 
 }
 */
+/*
 void printParameters(struct Configuration configuration) {
 	Serial.println("----------------------------------------");
 
@@ -242,6 +243,6 @@ void printModuleInformation(struct ModuleInformation moduleInformation) {
 	Serial.print(F("Features : "));  Serial.println(moduleInformation.features, HEX);
 	Serial.println("----------------------------------------");
 }
-
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////
